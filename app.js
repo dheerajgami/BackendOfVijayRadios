@@ -12,6 +12,8 @@ import authRouter from './routes/auth.route.js';
 import repairRoute from "./routes/repair.route.js"
 import orderRoute from "./routes/order.route.js"
 import contactFormRoute from "./routes/contactForm.route.js"
+import adminRouter from "./routes/admin.route.js";
+import productRouter from "./routes/product.route.js";
 
 const app = express();
 
@@ -23,13 +25,16 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static('public'));
+app.use('/uploads', express.static('public/uploads'));
 
 app.use('/', indexRouter);
 app.use('/auth', authRouter);
 app.use('/users', usersRouter);
 app.use("/repair",repairRoute);
 app.use("/order",orderRoute);
-app.use("/contactForm",contactFormRoute)
+app.use("/contactForm",contactFormRoute);
+app.use("/api/admin", adminRouter);
+app.use("/api/products", productRouter);
 
 
 // catch 404 and forward to error handler

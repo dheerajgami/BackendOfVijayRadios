@@ -80,6 +80,7 @@ export async function loginUser(req, res) {
         id: userData._id,
         name: userData.user_name,
         email: userData.email,
+        role: userData.role,
       },
     });
   } catch (error) {
@@ -121,7 +122,13 @@ export async function getUser(req, res) {
  */
 export async function addUser(req, res) {
   try {
-    const { user_name, email, mobile, password } = req.body;
+    const { user_name, email, mobile, password, confirmPassword, role } = req.body;
+
+    if (password !== confirmPassword) {
+      return res
+        .status(400)
+        .json(new ServerResponse(false, null, "Passwords do not match", null));
+    }
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -130,15 +137,24 @@ export async function addUser(req, res) {
       email,
       mobile,
       password: hashedPassword,
+      role: role || "customer",
     });
 
     return res.status(201).json(
       new ServerResponse(true, user, "User Registered Successfully", null)
     );
   } catch (error) {
+    if (error.name === 'ValidationError') {
+      const messages = Object.values(error.errors).map(err => err.message);
+      return res.status(400).json(new ServerResponse(false, null, messages.join(", "), error));
+    }
+    if (error.code === 11000) {
+      const field = Object.keys(error.keyValue)[0];
+      return res.status(400).json(new ServerResponse(false, null, `${field} already exists. Please login.`, error));
+    }
     return res
       .status(500)
-      .json(new ServerResponse(false, null, error.message, error));
+      .json(new ServerResponse(false, null, "Internal server error: " + error.message, error));
   }
 }
 

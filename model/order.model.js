@@ -57,50 +57,50 @@ const orderSchema = new Schema(
     },
 
     /* ================= ORDER ITEMS ================= */
-    // items: [
-    //   {
-    //     productId: {
-    //       type: Schema.Types.ObjectId,
-    //       ref: "product",
-    //     },
-    //     name: {
-    //       type: String,
-    //       required: true,
-    //     },
-    //     price: {
-    //       type: Number,
-    //       required: true,
-    //     },
-    //     qty: {
-    //       type: Number,
-    //       required: true,
-    //       min: 1,
-    //     },
-    //   },
-    // ],
+    items: [
+      {
+        productId: {
+          type: Schema.Types.ObjectId,
+          ref: "product",
+        },
+        name: {
+          type: String,
+          required: true,
+        },
+        price: {
+          type: Number,
+          required: true,
+        },
+        qty: {
+          type: Number,
+          required: true,
+          min: 1,
+        },
+      },
+    ],
 
     /* ================= PAYMENT & TOTAL ================= */
-    // payment: {
-    //   type: String,
-    //   enum: ["cod", "card", "upi"],
-    //   default: "cod",
-    // },
+    payment: {
+      type: String,
+      enum: ["cod", "card", "upi"],
+      default: "cod",
+    },
 
-    // subtotal: {
-    //   type: Number,
-    //   required: true,
-    // },
+    subtotal: {
+      type: Number,
+      required: true,
+    },
 
-    // shipping: {
-    //   type: Number,
-    //   required: true,
-    //   default: 0,
-    // },
+    shipping: {
+      type: Number,
+      required: true,
+      default: 0,
+    },
 
-    // total: {
-    //   type: Number,
-    //   required: true,
-    // },
+    total: {
+      type: Number,
+      required: true,
+    },
 
     /* ================= ORDER STATUS ================= */
     status: {

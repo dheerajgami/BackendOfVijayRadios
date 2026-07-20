@@ -37,6 +37,11 @@ export const registerUserValidator = [
     .optional()
     .isIn(["male", "female", "other"])
     .withMessage("Invalid gender"),
+
+  body("role")
+    .optional()
+    .isIn(["customer", "admin"])
+    .withMessage("Invalid role"),
 ];
 
 export const updateUserValidator = [
