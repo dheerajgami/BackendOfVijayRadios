@@ -1,14 +1,14 @@
 import express from "express";
 import multer from "multer";
-import path from "path";
-import fs from "fs";
+import path from "node:path";
+import fs from "node:fs";
 import { protect } from "../middleware/auth.middleware.js";
-import { 
-  getProducts, 
-  getProductById, 
-  createProduct, 
-  updateProduct, 
-  deleteProduct 
+import {
+  getProducts,
+  getProductById,
+  createProduct,
+  updateProduct,
+  deleteProduct
 } from "../controllers/product.controller.js";
 
 const router = express.Router();
@@ -43,6 +43,7 @@ function checkFileType(file, cb) {
 
 const upload = multer({
   storage,
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
   fileFilter: function (req, file, cb) {
     checkFileType(file, cb);
   },
@@ -50,7 +51,7 @@ const upload = multer({
 
 // Admin Middleware
 const isAdmin = (req, res, next) => {
-  if (req.user && req.user.role === "admin") {
+  if (req.user?.role === "admin") {
     next();
   } else {
     res.status(403).json({ success: false, message: "Not authorized as an admin" });

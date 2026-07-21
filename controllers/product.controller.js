@@ -1,4 +1,4 @@
-import Product from "../model/product.model.js";
+import * as productService from "../services/product.service.js";
 import ServerResponse from "../response/pattern.js";
 
 // @desc    Get all products
@@ -6,10 +6,12 @@ import ServerResponse from "../response/pattern.js";
 // @access  Public
 export const getProducts = async (req, res) => {
   try {
-    const products = await Product.find().sort({ createdAt: -1 });
+    const products = await productService.getProducts();
     res.status(200).json(new ServerResponse(true, products, "Products fetched successfully", null));
   } catch (error) {
-    res.status(500).json(new ServerResponse(false, null, "Server Error", null));
+    console.error("Error fetching products:", error);
+    const status = error.status || 500;
+    res.status(status).json(new ServerResponse(false, null, error.status ? error.message : "Server Error", error.status ? null : error));
   }
 };
 
@@ -18,13 +20,12 @@ export const getProducts = async (req, res) => {
 // @access  Public
 export const getProductById = async (req, res) => {
   try {
-    const product = await Product.findById(req.params.id);
-    if (!product) {
-      return res.status(404).json(new ServerResponse(false, null, "Product not found", null));
-    }
+    const product = await productService.getProductById(req.params.id);
     res.status(200).json(new ServerResponse(true, product, "Product fetched successfully", null));
   } catch (error) {
-    res.status(500).json(new ServerResponse(false, null, "Server Error", null));
+    console.error("Error fetching product by ID:", error);
+    const status = error.status || 500;
+    res.status(status).json(new ServerResponse(false, null, error.status ? error.message : "Server Error", error.status ? null : error));
   }
 };
 
@@ -33,32 +34,12 @@ export const getProductById = async (req, res) => {
 // @access  Private/Admin
 export const createProduct = async (req, res) => {
   try {
-    const { name, description, price, mrp, category, brand, stock, isFeatured, status } = req.body;
-    
-    // Extract image paths from multer
-    let images = [];
-    if (req.files && req.files.length > 0) {
-      images = req.files.map((file) => `/uploads/${file.filename}`);
-    }
-
-    const product = new Product({
-      name,
-      description,
-      price,
-      mrp,
-      category,
-      brand,
-      stock,
-      images,
-      isFeatured: isFeatured === 'true',
-      status,
-    });
-
-    const createdProduct = await product.save();
+    const createdProduct = await productService.createProduct(req.body, req.files);
     res.status(201).json(new ServerResponse(true, createdProduct, "Product created successfully", null));
   } catch (error) {
     console.error(error);
-    res.status(500).json(new ServerResponse(false, null, "Failed to create product", null));
+    const status = error.status || 500;
+    res.status(status).json(new ServerResponse(false, null, error.status ? error.message : "Failed to create product", error.status ? null : error));
   }
 };
 
@@ -67,44 +48,12 @@ export const createProduct = async (req, res) => {
 // @access  Private/Admin
 export const updateProduct = async (req, res) => {
   try {
-    const { name, description, price, mrp, category, brand, stock, isFeatured, status, existingImages } = req.body;
-    
-    const product = await Product.findById(req.params.id);
-
-    if (!product) {
-      return res.status(404).json(new ServerResponse(false, null, "Product not found", null));
-    }
-
-    let parsedExistingImages = [];
-    if (existingImages) {
-        // If sent from formData, it might be a JSON string or an array
-        parsedExistingImages = Array.isArray(existingImages) ? existingImages : JSON.parse(existingImages);
-    }
-
-    // New uploaded images
-    let newImages = [];
-    if (req.files && req.files.length > 0) {
-      newImages = req.files.map((file) => `/uploads/${file.filename}`);
-    }
-
-    product.name = name || product.name;
-    product.description = description || product.description;
-    product.price = price || product.price;
-    product.mrp = mrp || product.mrp;
-    product.category = category || product.category;
-    product.brand = brand || product.brand;
-    product.stock = stock !== undefined ? stock : product.stock;
-    product.isFeatured = isFeatured !== undefined ? isFeatured === 'true' : product.isFeatured;
-    product.status = status || product.status;
-    
-    // Combine old images kept by user with new uploaded images
-    product.images = [...parsedExistingImages, ...newImages];
-
-    const updatedProduct = await product.save();
+    const updatedProduct = await productService.updateProduct(req.params.id, req.body, req.files);
     res.status(200).json(new ServerResponse(true, updatedProduct, "Product updated successfully", null));
   } catch (error) {
     console.error(error);
-    res.status(500).json(new ServerResponse(false, null, "Failed to update product", null));
+    const status = error.status || 500;
+    res.status(status).json(new ServerResponse(false, null, error.status ? error.message : "Failed to update product", error.status ? null : error));
   }
 };
 
@@ -113,15 +62,11 @@ export const updateProduct = async (req, res) => {
 // @access  Private/Admin
 export const deleteProduct = async (req, res) => {
   try {
-    const deletedProduct = await Product.findByIdAndDelete(req.params.id);
-
-    if (!deletedProduct) {
-      return res.status(404).json(new ServerResponse(false, null, "Product not found", null));
-    }
-    
+    await productService.deleteProduct(req.params.id);
     res.status(200).json(new ServerResponse(true, null, "Product removed", null));
   } catch (error) {
     console.error("Delete product error:", error);
-    res.status(500).json(new ServerResponse(false, null, "Server Error", null));
+    const status = error.status || 500;
+    res.status(status).json(new ServerResponse(false, null, error.status ? error.message : "Server Error", error.status ? null : error));
   }
 };

@@ -4,30 +4,39 @@ import {
   getAllRepairs,
   getRepairById,
   deleteRepair,
+  updateRepairStatus,
 } from "../controllers/repair.controller.js";
-
+import { protect } from "../middleware/auth.middleware.js";
 import {
   validateRepair,
   checkDuplicateRepair,
-  protectRepair,
 } from "../middleware/repair.middleware.js";
 import { createRepairValidator } from "../validations/repair.validate.js";
 
 const router = express.Router();
 
-// Create repair (Protected + Validated)
+// Custom admin middleware (optional, if you want strictly admin for these routes)
+const isAdmin = (req, res, next) => {
+  if (req.user?.role === "admin") {
+    next();
+  } else {
+    res.status(403).json({ success: false, message: "Not authorized as admin" });
+  }
+};
+
+// Public or logged-in user can create a repair request
 router.post(
   "/create",
   createRepairValidator,
-  protectRepair, // optional
   validateRepair,
   checkDuplicateRepair,
   createRepair
 );
 
-// Admin / dashboard
-router.get("/all", getAllRepairs);
-router.get("/:id", getRepairById);
-router.delete("/:id", deleteRepair);
+// Admin only routes
+router.get("/all", protect, isAdmin, getAllRepairs);
+router.get("/:id", protect, isAdmin, getRepairById);
+router.delete("/:id", protect, isAdmin, deleteRepair);
+router.patch("/:id/status", protect, isAdmin, updateRepairStatus);
 
 export default router;

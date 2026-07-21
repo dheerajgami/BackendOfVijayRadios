@@ -1,4 +1,4 @@
-import contactFormModel from "../model/contactForm.model.js";
+import * as contactFormService from "../services/contactForm.service.js";
 
 /**
  * @desc    Create Contact Form
@@ -7,35 +7,7 @@ import contactFormModel from "../model/contactForm.model.js";
  */
 export const createContactForm = async (req, res) => {
   try {
-    const { user_name, email, mobile, message } = req.body;
-
-    // Check required fields
-    if (!user_name || !email || !mobile || !message) {
-      return res.status(400).json({
-        success: false,
-        message: "All fields are required",
-      });
-    }
-
-    // Check duplicate email or mobile
-    const existingUser = await contactFormModel.findOne({
-      $or: [{ email }, { mobile }],
-    });
-
-    if (existingUser) {
-      return res.status(409).json({
-        success: false,
-        message: "Email or Mobile already exists",
-      });
-    }
-
-    // Create new contact
-    const contact = await contactFormModel.create({
-      user_name,
-      email,
-      mobile,
-      message,
-    });
+    const contact = await contactFormService.createContactForm(req.body);
 
     res.status(201).json({
       success: true,
@@ -43,10 +15,11 @@ export const createContactForm = async (req, res) => {
       data: contact,
     });
   } catch (error) {
-    res.status(500).json({
+    const status = error.status || 500;
+    res.status(status).json({
       success: false,
-      message: "Server Error",
-      error: error.message,
+      message: error.status ? error.message : "Server Error",
+      error: error.status ? null : error.message,
     });
   }
 };
@@ -58,7 +31,7 @@ export const createContactForm = async (req, res) => {
  */
 export const getAllContactForms = async (req, res) => {
   try {
-    const contacts = await contactFormModel.find().sort({ createdAt: -1 });
+    const contacts = await contactFormService.getAllContactForms();
 
     res.status(200).json({
       success: true,
@@ -66,10 +39,11 @@ export const getAllContactForms = async (req, res) => {
       data: contacts,
     });
   } catch (error) {
-    res.status(500).json({
+    const status = error.status || 500;
+    res.status(status).json({
       success: false,
-      message: "Server Error",
-      error: error.message,
+      message: error.status ? error.message : "Server Error",
+      error: error.status ? null : error.message,
     });
   }
 };
@@ -82,25 +56,18 @@ export const getAllContactForms = async (req, res) => {
 export const deleteContactForm = async (req, res) => {
   try {
     const { id } = req.params;
-
-    const contact = await contactFormModel.findByIdAndDelete(id);
-
-    if (!contact) {
-      return res.status(404).json({
-        success: false,
-        message: "Contact not found",
-      });
-    }
+    await contactFormService.deleteContactForm(id);
 
     res.status(200).json({
       success: true,
       message: "Contact deleted successfully",
     });
   } catch (error) {
-    res.status(500).json({
+    const status = error.status || 500;
+    res.status(status).json({
       success: false,
-      message: "Server Error",
-      error: error.message,
+      message: error.status ? error.message : "Server Error",
+      error: error.status ? null : error.message,
     });
   }
 };

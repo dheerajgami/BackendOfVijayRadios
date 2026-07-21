@@ -26,7 +26,7 @@ const orderSchema = new Schema(
       type: String,
       required: [true, "Phone number is required"],
       match: [
-        /^(\+91[\-\s]?)?[0]?(91)?[6-9]\d{9}$/,
+        /^(\+91[-\s]?)?0?(91)?[6-9]\d{9}$/,
         "Invalid Indian mobile number",
       ],
     },
@@ -61,7 +61,7 @@ const orderSchema = new Schema(
       {
         productId: {
           type: Schema.Types.ObjectId,
-          ref: "product",
+          ref: "Product",
         },
         name: {
           type: String,

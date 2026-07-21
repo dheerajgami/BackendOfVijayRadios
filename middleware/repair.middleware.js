@@ -33,7 +33,7 @@ export const validateRepair = (req, res, next) => {
 
   // ❌ Mobile format (India)
   const mobileRegex =
-    /^(\+91[\-\s]?)?[0]?(91)?[6-9]\d{9}$/;
+    /^(\+91[-\s]?)?0?(91)?[6-9]\d{9}$/;
 
   if (!mobileRegex.test(mobile)) {
     return res.status(400).json({
@@ -89,6 +89,7 @@ export const protectRepair = (req, res, next) => {
     req.user = decoded;
     next();
   } catch (error) {
+    console.error("JWT Verification Error:", error);
     return res.status(401).json({
       success: false,
       message: "Invalid or expired token",

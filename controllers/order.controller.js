@@ -1,4 +1,4 @@
-import orderModel from "../model/order.model.js";
+import * as orderService from "../services/order.service.js";
 
 /* =====================================================
    CREATE ORDER (CHECKOUT)
@@ -6,53 +6,7 @@ import orderModel from "../model/order.model.js";
    ===================================================== */
 export const createOrder = async (req, res) => {
   try {
-    const {
-      user_name,
-      email,
-      mobile,
-      address,
-      city,
-      state,
-      zip,
-      // items,
-      // payment,
-      // subtotal,
-      // shipping,
-      // total,
-    } = req.body;
-
-    // Basic safety check
-    if (
-      !user_name ||
-      !email ||
-      !mobile ||
-      !address ||
-      !city ||
-      !state ||
-       !zip 
-      // || !items ||
-      // items.length === 0
-    ) {
-      return res.status(400).json({
-        success: false,
-        message: "All required checkout fields must be provided",
-      });
-    }
-
-    const order = await orderModel.create({
-      user_name,
-      email,
-      mobile,
-      address,
-      city,
-      state,
-      zip,
-      // items,
-      // payment,
-      // subtotal,
-      // shipping,
-      // total,
-    });
+    const order = await orderService.createOrder(req.body);
 
     res.status(201).json({
       success: true,
@@ -61,10 +15,10 @@ export const createOrder = async (req, res) => {
     });
   } catch (error) {
     console.error("Create Order Error:", error);
-
-    res.status(500).json({
+    const status = error.status || 500;
+    res.status(status).json({
       success: false,
-      message: "Failed to place order",
+      message: error.status ? error.message : "Failed to place order",
     });
   }
 };
@@ -75,9 +29,7 @@ export const createOrder = async (req, res) => {
    ===================================================== */
 export const getAllOrders = async (req, res) => {
   try {
-    const orders = await orderModel
-      .find()
-      .sort({ createdAt: -1 });
+    const orders = await orderService.getAllOrders();
 
     res.status(200).json({
       success: true,
@@ -86,10 +38,10 @@ export const getAllOrders = async (req, res) => {
     });
   } catch (error) {
     console.error("Get All Orders Error:", error);
-
-    res.status(500).json({
+    const status = error.status || 500;
+    res.status(status).json({
       success: false,
-      message: "Failed to fetch orders",
+      message: error.status ? error.message : "Failed to fetch orders",
     });
   }
 };
@@ -100,14 +52,7 @@ export const getAllOrders = async (req, res) => {
    ===================================================== */
 export const getOrderById = async (req, res) => {
   try {
-    const order = await orderModel.findById(req.params.id);
-
-    if (!order) {
-      return res.status(404).json({
-        success: false,
-        message: "Order not found",
-      });
-    }
+    const order = await orderService.getOrderById(req.params.id);
 
     res.status(200).json({
       success: true,
@@ -123,9 +68,10 @@ export const getOrderById = async (req, res) => {
       });
     }
 
-    res.status(500).json({
+    const status = error.status || 500;
+    res.status(status).json({
       success: false,
-      message: "Error fetching order",
+      message: error.status ? error.message : "Error fetching order",
     });
   }
 };
@@ -137,19 +83,7 @@ export const getOrderById = async (req, res) => {
 export const updateOrderStatus = async (req, res) => {
   try {
     const { status } = req.body;
-
-    const order = await orderModel.findByIdAndUpdate(
-      req.params.id,
-      { status },
-      { new: true }
-    );
-
-    if (!order) {
-      return res.status(404).json({
-        success: false,
-        message: "Order not found",
-      });
-    }
+    const order = await orderService.updateOrderStatus(req.params.id, status);
 
     res.status(200).json({
       success: true,
@@ -158,10 +92,10 @@ export const updateOrderStatus = async (req, res) => {
     });
   } catch (error) {
     console.error("Update Order Status Error:", error);
-
-    res.status(500).json({
+    const status = error.status || 500;
+    res.status(status).json({
       success: false,
-      message: "Failed to update order status",
+      message: error.status ? error.message : "Failed to update order status",
     });
   }
 };
@@ -172,14 +106,7 @@ export const updateOrderStatus = async (req, res) => {
    ===================================================== */
 export const deleteOrder = async (req, res) => {
   try {
-    const order = await orderModel.findByIdAndDelete(req.params.id);
-
-    if (!order) {
-      return res.status(404).json({
-        success: false,
-        message: "Order not found",
-      });
-    }
+    await orderService.deleteOrder(req.params.id);
 
     res.status(200).json({
       success: true,
@@ -195,9 +122,10 @@ export const deleteOrder = async (req, res) => {
       });
     }
 
-    res.status(500).json({
+    const status = error.status || 500;
+    res.status(status).json({
       success: false,
-      message: "Failed to delete order",
+      message: error.status ? error.message : "Failed to delete order",
     });
   }
 };

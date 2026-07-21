@@ -26,7 +26,7 @@ const userSchema = new Schema({
         required: [true, "Mobile Number is Required"],
         validate: {
             validator: function (v) {
-                return /^(\+91[\-\s]?)?[0]?(91)?[6-9]\d{9}$/.test(v)
+                return /^(\+91[-\s]?)?0?(91)?[6-9]\d{9}$/.test(v)
             },
             message: props => `${props.value} is Not a Valid Mobile Number`
         },
@@ -58,6 +58,10 @@ const userSchema = new Schema({
         type: String,
         enum: ["customer", "admin"],
         default: "customer"
+    },
+    photo: {
+        type: String,
+        default: null
     }
 }, { timestamps: true });
 

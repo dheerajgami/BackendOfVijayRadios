@@ -1,4 +1,4 @@
-import { Schema,model } from "mongoose";
+import { Schema, model } from "mongoose";
 
 const contactFromSchema = new Schema({
     user_name: {
@@ -26,19 +26,19 @@ const contactFromSchema = new Schema({
         required: [true, "Mobile Number is Required"],
         validate: {
             validator: function (v) {
-                return /^(\+91[\-\s]?)?[0]?(91)?[6-9]\d{9}$/.test(v)
+                return /^(\+91\s?)?0?(91)?[6-9]\d{9}$/.test(v)
             },
             message: props => `${props.value} is Not a Valid Mobile Number`
         },
         unique: true
     },
-    message:{
-        type:String,
-        required:[true,"Message is required"],
+    message: {
+        type: String,
+        required: [true, "Message is required"],
         minLength: [2, "Invalid name"],
         maxLength: [100, "Invalid name"]
     }
-},{timestamps:true});
+}, { timestamps: true });
 
-const contactFormModel = model("contactForm",contactFromSchema);
+const contactFormModel = model("contactForm", contactFromSchema);
 export default contactFormModel;

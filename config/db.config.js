@@ -6,7 +6,7 @@ const mongoUri = process.env.MONGOURI || 'mongodb://localhost:27017/vijayradios'
 
 export default async function dbConnect() {
     try{
-        const client = connect(mongoUri);
+        const client = await connect(mongoUri);
         if(client){
             console.log("Database Connected Successfully Vijay Radios");
         }

@@ -1,44 +1,9 @@
-import repairModel from "../model/repair.model.js";
+import * as repairService from "../services/repair.service.js";
 
 // ================= CREATE REPAIR =================
 export const createRepair = async (req, res) => {
   try {
-    const {
-      user_name,
-      email,
-      mobile,
-      product_type,
-      describation,
-    } = req.body;
-
-    // 🔍 Basic validation
-    if (!user_name || !email || !mobile || !product_type) {
-      return res.status(400).json({
-        success: false,
-        message: "All required fields must be filled",
-      });
-    }
-
-    // 🚫 Check existing repair request (email OR mobile)
-    const existingRepair = await repairModel.findOne({
-      $or: [{ email }, { mobile }],
-    });
-
-    if (existingRepair) {
-      return res.status(409).json({
-        success: false,
-        message: "Repair request already exists with this email or mobile",
-      });
-    }
-
-    // ✅ Create repair request
-    const repair = await repairModel.create({
-      user_name,
-      email,
-      mobile,
-      product_type,
-      describation,
-    });
+    const repair = await repairService.createRepair(req.body);
 
     res.status(201).json({
       success: true,
@@ -47,10 +12,10 @@ export const createRepair = async (req, res) => {
     });
   } catch (error) {
     console.error("Repair Create Error:", error);
-
-    res.status(500).json({
+    const status = error.status || 500;
+    res.status(status).json({
       success: false,
-      message: "Server error while creating repair request",
+      message: error.status ? error.message : "Server error while creating repair request",
     });
   }
 };
@@ -62,9 +27,7 @@ export const createRepair = async (req, res) => {
    ===================================================== */
 export const getAllRepairs = async (req, res) => {
   try {
-    const repairs = await repairModel
-      .find()
-      .sort({ createdAt: -1 });
+    const repairs = await repairService.getAllRepairs();
 
     res.status(200).json({
       success: true,
@@ -74,9 +37,10 @@ export const getAllRepairs = async (req, res) => {
     });
   } catch (error) {
     console.error("getAllRepairs Error:", error);
-    res.status(500).json({
+    const status = error.status || 500;
+    res.status(status).json({
       success: false,
-      message: "Failed to fetch repair requests",
+      message: error.status ? error.message : "Failed to fetch repair requests",
     });
   }
 };
@@ -87,16 +51,7 @@ export const getAllRepairs = async (req, res) => {
    ===================================================== */
 export const getRepairById = async (req, res) => {
   try {
-    const { id } = req.params;
-
-    const repair = await repairModel.findById(id);
-
-    if (!repair) {
-      return res.status(404).json({
-        success: false,
-        message: "Repair request not found",
-      });
-    }
+    const repair = await repairService.getRepairById(req.params.id);
 
     res.status(200).json({
       success: true,
@@ -106,7 +61,6 @@ export const getRepairById = async (req, res) => {
   } catch (error) {
     console.error("getRepairById Error:", error);
 
-    // Invalid MongoDB ObjectId
     if (error.name === "CastError") {
       return res.status(400).json({
         success: false,
@@ -114,9 +68,10 @@ export const getRepairById = async (req, res) => {
       });
     }
 
-    res.status(500).json({
+    const status = error.status || 500;
+    res.status(status).json({
       success: false,
-      message: "Error fetching repair request",
+      message: error.status ? error.message : "Error fetching repair request",
     });
   }
 };
@@ -127,16 +82,7 @@ export const getRepairById = async (req, res) => {
    ===================================================== */
 export const deleteRepair = async (req, res) => {
   try {
-    const { id } = req.params;
-
-    const repair = await repairModel.findByIdAndDelete(id);
-
-    if (!repair) {
-      return res.status(404).json({
-        success: false,
-        message: "Repair request not found",
-      });
-    }
+    await repairService.deleteRepair(req.params.id);
 
     res.status(200).json({
       success: true,
@@ -152,9 +98,33 @@ export const deleteRepair = async (req, res) => {
       });
     }
 
-    res.status(500).json({
+    const status = error.status || 500;
+    res.status(status).json({
       success: false,
-      message: "Failed to delete repair request",
+      message: error.status ? error.message : "Failed to delete repair request",
+    });
+  }
+};
+
+/* =====================================================
+   UPDATE REPAIR STATUS (ADMIN)
+   PATCH /api/repair/:id/status
+   ===================================================== */
+export const updateRepairStatus = async (req, res) => {
+  try {
+    const repair = await repairService.updateRepairStatus(req.params.id, req.body.status);
+
+    res.status(200).json({
+      success: true,
+      message: "Repair status updated successfully",
+      data: repair,
+    });
+  } catch (error) {
+    console.error("updateRepairStatus Error:", error);
+    const status = error.status || 500;
+    res.status(status).json({
+      success: false,
+      message: error.status ? error.message : "Failed to update repair status",
     });
   }
 };

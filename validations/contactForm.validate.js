@@ -19,7 +19,7 @@ export const contactFormValidator = [
     .trim()
     .notEmpty()
     .withMessage("Mobile number is required")
-    .matches(/^(\+91[\-\s]?)?[0]?(91)?[6-9]\d{9}$/)
+    .matches(/^(\+91[-\s]?)?0?(91)?[6-9]\d{9}$/)
     .withMessage("Invalid Indian mobile number"),
 
   body("message")

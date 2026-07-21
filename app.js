@@ -27,12 +27,12 @@ app.use(cookieParser());
 app.use(express.static('public'));
 app.use('/uploads', express.static('public/uploads'));
 
-app.use('/', indexRouter);
-app.use('/auth', authRouter);
-app.use('/users', usersRouter);
-app.use("/repair",repairRoute);
-app.use("/order",orderRoute);
-app.use("/contactForm",contactFormRoute);
+app.use('/api/', indexRouter);
+app.use('/api/auth', authRouter);
+app.use('/api/users', usersRouter);
+app.use("/api/repair",repairRoute);
+app.use("/api/order",orderRoute);
+app.use("/api/contactForm",contactFormRoute);
 app.use("/api/admin", adminRouter);
 app.use("/api/products", productRouter);
 

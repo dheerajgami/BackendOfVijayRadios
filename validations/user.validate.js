@@ -18,7 +18,7 @@ export const registerUserValidator = [
   body("mobile")
     .notEmpty()
     .withMessage("Mobile number is required")
-    .matches(/^(\+91[\-\s]?)?[0]?(91)?[6-9]\d{9}$/)
+    .matches(/^(\+91[-\s]?)?0?(91)?[6-9]\d{9}$/)
     .withMessage("Invalid Indian Mobile Number"),
 
   body("password")
