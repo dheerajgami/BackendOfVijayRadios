@@ -2,6 +2,7 @@ import orderModel from "../model/order.model.js";
 
 export const createOrder = async (orderData) => {
   const {
+    userId,
     user_name,
     email,
     mobile,
@@ -33,6 +34,7 @@ export const createOrder = async (orderData) => {
   }
 
   const order = await orderModel.create({
+    userId,
     user_name,
     email,
     mobile,
@@ -53,6 +55,13 @@ export const createOrder = async (orderData) => {
 export const getAllOrders = async () => {
   return await orderModel
     .find()
+    .populate("items.productId", "images name")
+    .sort({ createdAt: -1 });
+};
+
+export const getMyOrders = async (userId) => {
+  return await orderModel
+    .find({ userId })
     .populate("items.productId", "images name")
     .sort({ createdAt: -1 });
 };

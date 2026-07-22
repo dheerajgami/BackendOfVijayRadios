@@ -3,6 +3,11 @@ import { Schema, model } from "mongoose";
 const orderSchema = new Schema(
   {
     /* ================= CUSTOMER DETAILS ================= */
+    userId: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+      required: false, // Make it optional for guest checkouts if any
+    },
     user_name: {
       type: String,
       required: [true, "Full name is required"],
@@ -75,6 +80,9 @@ const orderSchema = new Schema(
           type: Number,
           required: true,
           min: 1,
+        },
+        image: {
+          type: String,
         },
       },
     ],

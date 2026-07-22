@@ -1,5 +1,7 @@
 import * as userService from "../services/user.service.js";
 import ServerResponse from "../response/pattern.js";
+import { getIO } from "../socket.js";
+import Notification from "../models/notification.model.js";
 
 /**
  * ======================
@@ -67,6 +69,24 @@ export async function getUser(req, res) {
 export async function addUser(req, res) {
   try {
     const user = await userService.addUser(req.body);
+
+    // --- Notification logic ---
+    try {
+      const adminNotification = await Notification.create({
+        title: "New User Registered",
+        message: `${user.user_name || req.body.user_name} (${user.email || req.body.email}) has just registered.`,
+        type: "new_user",
+        recipient: "admin",
+        link: `/admin/users` 
+      });
+      
+      const io = getIO();
+      io.to("admin").emit("admin_notification", adminNotification);
+    } catch(err) {
+      console.error("Socket error on register", err);
+    }
+    // -------------------------
+
     return res.status(201).json(
       new ServerResponse(true, user, "User Registered Successfully", null)
     );

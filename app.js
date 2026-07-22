@@ -15,11 +15,17 @@ import contactFormRoute from "./routes/contactForm.route.js"
 import adminRouter from "./routes/admin.route.js";
 import productRouter from "./routes/product.route.js";
 
+import notificationRouter from "./routes/notification.route.js";
+
 const app = express();
+app.disable('x-powered-by');
 
 // view engine setup
 app.set('view engine', 'ejs');
-app.use(cors())
+app.use(cors({
+  origin: ["http://localhost:5173", "http://127.0.0.1:5173"],
+  credentials: true,
+}))
 app.use(logger('combined'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -35,6 +41,7 @@ app.use("/api/order",orderRoute);
 app.use("/api/contactForm",contactFormRoute);
 app.use("/api/admin", adminRouter);
 app.use("/api/products", productRouter);
+app.use("/api/notifications", notificationRouter);
 
 
 // catch 404 and forward to error handler

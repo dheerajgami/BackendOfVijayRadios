@@ -1,8 +1,7 @@
 import User from "../model/user.model.js";
 import { generateToken } from "../config/jwt.config.js";
 import bcrypt from "bcrypt";
-import fs from "node:fs";
-import path from "node:path";
+
 
 export const loginUser = async (login_user, password) => {
   let user = await User.findOne({
@@ -172,14 +171,8 @@ export const uploadPhoto = async (userId, file) => {
     throw error;
   }
 
-  if (user.photo) {
-    const oldPhotoPath = path.join(process.cwd(), "public", user.photo);
-    if (fs.existsSync(oldPhotoPath)) {
-      fs.unlinkSync(oldPhotoPath);
-    }
-  }
-
-  const photoUrl = `/uploads/${file.filename}`;
+  // Cloudinary URL is in file.path
+  const photoUrl = file.path;
   user.photo = photoUrl;
   await user.save();
 
@@ -198,10 +191,7 @@ export const removePhoto = async (userId) => {
   }
 
   if (user.photo) {
-    const oldPhotoPath = path.join(process.cwd(), "public", user.photo);
-    if (fs.existsSync(oldPhotoPath)) {
-      fs.unlinkSync(oldPhotoPath);
-    }
+    // We skip deleting from Cloudinary for now, just set photo to null in DB
     user.photo = null;
     await user.save();
   }

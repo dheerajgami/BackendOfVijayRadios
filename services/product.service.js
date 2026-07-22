@@ -17,10 +17,10 @@ export const getProductById = async (id) => {
 export const createProduct = async (productData, files) => {
   const { name, description, price, mrp, category, brand, stock, isFeatured, status } = productData;
   
-  // Extract image paths from multer
+  // Extract image paths from multer (Cloudinary URL is in file.path)
   let images = [];
   if (files && files.length > 0) {
-    images = files.map((file) => `/uploads/${file.filename}`);
+    images = files.map((file) => file.path);
   }
 
   const product = new Product({
@@ -59,7 +59,7 @@ export const updateProduct = async (id, updateData, files) => {
   // New uploaded images
   let newImages = [];
   if (files && files.length > 0) {
-    newImages = files.map((file) => `/uploads/${file.filename}`);
+    newImages = files.map((file) => file.path);
   }
 
   product.name = name || product.name;
