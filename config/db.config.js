@@ -2,7 +2,7 @@ import {connect} from "mongoose";
 import dotenv from "dotenv";
 dotenv.config();
 
-const mongoUri = process.env.MONGOURI || 'mongodb://localhost:27017/vijayradios';
+const mongoUri = process.env.MONGO_URI || 'mongodb://localhost:27017/vijayradios';
 
 export default async function dbConnect() {
     try{
