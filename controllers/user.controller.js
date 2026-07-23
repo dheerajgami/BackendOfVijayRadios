@@ -1,7 +1,7 @@
 import * as userService from "../services/user.service.js";
 import ServerResponse from "../response/pattern.js";
 import { getIO } from "../socket.js";
-import Notification from "../models/notification.model.js";
+import Notification from "../model/notification.model.js";
 
 /**
  * ======================

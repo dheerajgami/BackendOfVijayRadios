@@ -1,6 +1,8 @@
 import * as orderService from "../services/order.service.js";
 import { getIO } from "../socket.js";
-import Notification from "../models/notification.model.js";
+import Notification from "../model/notification.model.js";
+import { sendEmail } from "../utils/smtp.js";
+import { generateInvoicePDF } from "../utils/pdfGenerator.js";
 
 /* =====================================================
    CREATE ORDER (CHECKOUT)
@@ -159,6 +161,34 @@ export const updateOrderStatus = async (req, res) => {
 
       const io = getIO();
       io.to(order.userId.toString()).emit("user_notification", customerNotification);
+    }
+
+    // --- Invoice Email Logic ---
+    if (status.toLowerCase() === "confirmed" && order.email) {
+      try {
+        const pdfBuffer = await generateInvoicePDF(order, order._id);
+        const emailContent = `
+          <h3>Order Confirmed!</h3>
+          <p>Dear ${order.user_name},</p>
+          <p>Your order has been confirmed. Please find your invoice attached as a PDF.</p>
+          <br/>
+          <p>Thank you for shopping at Vijay Radios!</p>
+        `;
+        
+        await sendEmail(
+          order.email,
+          "Your Invoice - Vijay Radios",
+          "Your order has been confirmed. Please find your invoice attached.",
+          emailContent,
+          [{
+            filename: `invoice_${order._id}.pdf`,
+            content: pdfBuffer,
+            contentType: 'application/pdf'
+          }]
+        );
+      } catch (err) {
+        console.error("Error generating or sending invoice PDF:", err);
+      }
     }
     // -------------------------
 

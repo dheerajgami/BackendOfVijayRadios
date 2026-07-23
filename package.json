@@ -24,7 +24,9 @@
     "morgan": "~1.9.1",
     "multer": "^2.2.0",
     "multer-storage-cloudinary": "^4.0.0",
+    "nodemailer": "^9.0.3",
     "nodemon": "^3.1.11",
+    "pdfkit": "^0.19.1",
     "socket.io": "^4.8.3"
   }
 }
