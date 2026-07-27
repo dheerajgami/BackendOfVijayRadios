@@ -1,11 +1,10 @@
 // Trigger restart
+import 'dotenv/config';
 import createError from 'http-errors';
 import express from 'express';
 import cookieParser from 'cookie-parser';
 import logger from 'morgan';
-import dotenv from 'dotenv';
-import cors from "cors"
-dotenv.config();
+import cors from "cors";
 
 import indexRouter from './routes/index.js';
 import usersRouter from './routes/users.js';
