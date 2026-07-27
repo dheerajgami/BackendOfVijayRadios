@@ -165,30 +165,34 @@ export const updateOrderStatus = async (req, res) => {
 
     // --- Invoice Email Logic ---
     if (status.toLowerCase() === "confirmed" && order.email) {
-      try {
-        const pdfBuffer = await generateInvoicePDF(order, order._id);
-        const emailContent = `
-          <h3>Order Confirmed!</h3>
-          <p>Dear ${order.user_name},</p>
-          <p>Your order has been confirmed. Please find your invoice attached as a PDF.</p>
-          <br/>
-          <p>Thank you for shopping at Vijay Radios!</p>
-        `;
-        
-        await sendEmail(
-          order.email,
-          "Your Invoice - Vijay Radios",
-          "Your order has been confirmed. Please find your invoice attached.",
-          emailContent,
-          [{
-            filename: `invoice_${order._id}.pdf`,
-            content: pdfBuffer,
-            contentType: 'application/pdf'
-          }]
-        );
-      } catch (err) {
-        console.error("Error generating or sending invoice PDF:", err);
-      }
+      // Run asynchronously so it doesn't block the API response
+      (async () => {
+        try {
+          const pdfBuffer = await generateInvoicePDF(order, order._id);
+          const emailContent = `
+            <h3>Order Confirmed!</h3>
+            <p>Dear ${order.user_name || 'Customer'},</p>
+            <p>Your order has been confirmed. Please find your invoice attached as a PDF.</p>
+            <br/>
+            <p>Thank you for shopping at Vijay Radios!</p>
+          `;
+          
+          await sendEmail(
+            order.email,
+            "Your Invoice - Vijay Radios",
+            "Your order has been confirmed. Please find your invoice attached.",
+            emailContent,
+            [{
+              filename: `invoice_${order._id}.pdf`,
+              content: pdfBuffer,
+              contentType: 'application/pdf'
+            }]
+          );
+          console.log("Invoice email sent successfully for order:", order._id);
+        } catch (err) {
+          console.error("Error generating or sending invoice PDF:", err);
+        }
+      })();
     }
     // -------------------------
 
