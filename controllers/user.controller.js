@@ -85,6 +85,26 @@ export async function addUser(req, res) {
     } catch(err) {
       console.error("Socket error on register", err);
     }
+
+    // --- Send Welcome Email ---
+    if (user.email) {
+      import("../utils/smtp.js").then(({ sendEmail }) => {
+        const welcomeHtml = `
+          <h3>Welcome to Vijay Radios, ${user.user_name || 'Customer'}!</h3>
+          <p>Thank you for registering with us. We are excited to have you on board.</p>
+          <p>Browse our latest collections of speakers and electronics.</p>
+          <br/>
+          <p>Best Regards,</p>
+          <p>Vijay Radios Team</p>
+        `;
+        sendEmail(
+          user.email,
+          "Welcome to Vijay Radios!",
+          "Thank you for registering with us.",
+          welcomeHtml
+        ).catch(err => console.error("Error sending welcome email:", err));
+      }).catch(err => console.error("Failed to load smtp module:", err));
+    }
     // -------------------------
 
     return res.status(201).json(
